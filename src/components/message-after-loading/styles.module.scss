@@ -1,7 +1,6 @@
 .wrapper_error {
   display: flex;
   flex-direction: column;
-  /* justify-content: center; */
   align-items: flex-start;
   padding: 24px 32px;
   background-color: rgba(244, 44, 79, 0.5);
@@ -12,6 +11,8 @@
   background: #feebea;
   border: 1.5px solid #f42c4f;
   border-radius: 5px;
+
+
 
   .block_error{
     width: 100%;
@@ -41,4 +42,7 @@
       }
   }
 
+}
+.hide{
+  display: none;
 }

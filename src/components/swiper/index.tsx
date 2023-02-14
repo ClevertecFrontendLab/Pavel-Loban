@@ -13,8 +13,12 @@ import 'swiper/css/navigation';
 import 'swiper/css/thumbs';
 import 'swiper/css/pagination';
 
+interface ImageUrl{
+  url: string,
+}
+
 interface Props{
-  img: string,
+  img: ImageUrl[],
   bookImages: string[],
 }
 
@@ -22,11 +26,12 @@ export const Sswiper:React.FC<Props> = ({img, bookImages}) => {
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperClass>();
   const date = new Date()
 
+
   return (
 
     <React.Fragment>
 
-{img !== '' ?
+{img.length !== 0 ?
 <Swiper
       data-test-id='slide-big'
         spaceBetween={30}
@@ -36,15 +41,16 @@ export const Sswiper:React.FC<Props> = ({img, bookImages}) => {
         modules={[FreeMode, Navigation, Thumbs,Pagination]}
         className='mySwiper2'
       >
-        {bookImages.map((imag:string) =>
+        {img.map((imag:ImageUrl) =>
         (
           <SwiperSlide key={Math.random() * date.getMilliseconds()}>
-          <img src={imag} alt='book' />
+          <img src={`https://strapi.cleverland.by${imag.url}`} alt='book' />
         </SwiperSlide>
         ))}
       </Swiper>
       :
       <Swiper
+
       data-test-id='slide-big'
         spaceBetween={10}
         navigation={true}
@@ -76,9 +82,9 @@ export const Sswiper:React.FC<Props> = ({img, bookImages}) => {
         modules={[FreeMode, Navigation, Thumbs]}
         className="mySwiper"
       >
-        {bookImages.map((img) => (
+        {bookImages.map((bookImg) => (
             <SwiperSlide data-test-id='slide-mini' key={Math.random() * date.getMilliseconds()}>
-            <img src={ img } alt='book' />
+            <img src={ bookImg } alt='book' />
           </SwiperSlide>
         ))}
 

@@ -2,14 +2,15 @@ import React from 'react';
 
 import { ReactComponent as Error } from '../../assets/image/error.svg';
 import { ReactComponent as CloseError } from '../../assets/image/icon-close-error.svg';
-import { useAppDispatch} from '../../hooks/redux-hooks';
+import {useAppDispatch,useAppSelector} from '../../hooks/redux-hooks';
+import { RootState } from '../../store';
 import {setCloseError } from '../../store/card-slice';
 
 import styles from './styles.module.scss';
 
 export const Message: React.FC = () => {
 
-
+  const {  closeError } = useAppSelector((state: RootState) => state.card);
   const dispatch = useAppDispatch();
 
   const closeModalError = () => {
@@ -18,7 +19,7 @@ export const Message: React.FC = () => {
 
   return(
 
-  <div className={styles.wrapper_error} >
+  <div className={closeError ? styles.wrapper_error : styles.hide } data-test-id='error'>
     <div className={styles.block_error}>
       <div className={styles.message_error}>
         <Error width={32} height={32} className={styles.icon_error}/>

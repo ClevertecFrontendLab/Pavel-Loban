@@ -1,99 +1,186 @@
+
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import axios from 'axios';
 
 import Star from '../../assets/image/icon_star.svg';
 import StarEmpty from '../../assets/image/icon_star_empty.svg';
+import {ReactComponent as  Preloader} from '../../assets/image/preloader.svg';
 import { Button } from '../../components/button';
 import { Footer } from '../../components/footer';
 import { Header } from '../../components/header';
+import { Message } from '../../components/message-after-loading/message';
 import { Review } from '../../components/review';
 import { Sections } from '../../components/sections';
 import { Sswiper } from '../../components/swiper';
-import { data } from '../../data'
-import { useAppSelector } from '../../hooks/redux-hooks';
+import { useAppDispatch,useAppSelector } from '../../hooks/redux-hooks';
 import { RootState } from '../../store';
+import { setLoading} from '../../store/books-slice';
 
 import styles from './book-page.module.scss';
 
+interface Booking {
+    customerFirstName: string,
+    customerId: number,
+    customerLastName: string,
+    dateOrder: string,
+    id: number,
+    order: boolean,
+}
+
+interface UserComments{
+    avatarUrl: string | null,
+commentUserId: number,
+firstName: string,
+lastName: string,
+}
+
+interface Comments {
+    createdAt: string,
+    id: number,
+    rating: number,
+    text?: string | undefined,
+    user: UserComments | null,
+}
+
+
 
 interface Book {
-    image: string,
+    ISBN: string,
+    authors: string[],
+    booking: Booking | null,
+    categories: string[],
+    comments: Comments[] | null,
+    cover: string,
+    delivery: boolean | null,
+    description: string,
+    format: string,
+    histories: [] | null,
     id: number,
+    images: [] ,
+    issueYear: string,
+    pages: string,
+    producer: string,
+    publish: string,
+    rating: number,
     title: string,
-    author: string,
-    year: number,
-    free: boolean,
-    returnDate: string,
-    grade: number,
-    bookImages: string[],
+    weight: string,
 }
 
-interface Props {
-    data: Book[],
-}
+
+
 export const BookPage: React.FC = () => {
 
-
-    const { menuIsOpen} = useAppSelector((state: RootState) => state.burger);
+    const dispatch = useAppDispatch();
+    const { books } = useAppSelector((state: RootState) => state.books);
+    const { menuIsOpen } = useAppSelector((state: RootState) => state.burger);
     const date = new Date()
     const { id } = useParams();
-    const book = data.filter((item: Book) => item.id === Number(id));
 
 
+    const [newBook, setNewBook] = React.useState<Book | null>(null);
+    const {loading} = useAppSelector((state: RootState) => state.books)
+
+
+
+
+
+    const URLbook = `https://strapi.cleverland.by/api/books/${id}`
+
+
+
+    React.useEffect(() => {
+        const getBook = async () => {
+            try {
+                dispatch(setLoading('loading'));
+
+                const book = await axios.get(URLbook);
+
+                setNewBook(book.data)
+                dispatch(setLoading(''));
+            } catch (error) {
+                dispatch(setLoading('error'));
+            }
+
+            return null;
+        }
+
+        getBook();
+    },[URLbook,dispatch])
+
+    React.useEffect(() => {
+
+
+        if(loading === 'loading'){
+
+            document.body.classList.add('preloader_true');
+        }else{
+            document.body.classList.remove('preloader_true');
+        }
+
+    },[loading])
 
 
     return (
+
+        <React.Fragment>
+        {loading === 'loading'  ? <div className={styles.wrapper_preloader} data-test-id='loader'
+        > <Preloader className={styles.preloader} width={68.7} height={68.7} /></div>  : null}
         <section className={styles.book_page}>
             <Header />
 
-            <div
-            onClick={e => e.stopPropagation() } role='presentation'
-            className={ menuIsOpen ? styles.burger_menu_active :styles.burger_menu}>
-            <Sections dataId1='burger-showcase' dataId2='burger-books' isDesktop={false}/>
+
+{loading === 'error' ? <Message/> : ''}
+        <section className={styles.content}>
+        <div
+                onClick={e => e.stopPropagation()} role='presentation'
+                className={menuIsOpen ? styles.burger_menu_active : styles.burger_menu}>
+                <Sections dataId1='burger-showcase' dataId2='burger-books' isDesktop={false} />
             </div>
-            <section className={styles.content}>
+
+
+            {!!newBook  && <section className={styles.content}>
                 <p className={styles.title}>
                     Бизнес книги / Грокаем алгоритмы. Иллюстрированное пособие для программистов и любопытствующих
                 </p>
                 <section className={styles.book_wrapper}>
                     <div className={styles.swiper}>
-                        <Sswiper img={book[0].image} bookImages={book[0].bookImages} />
+                        <Sswiper img={newBook.images} bookImages={newBook.images} />
                     </div>
                     <section className={styles.book_info}>
-                        <h3>{book[0].title}</h3>
-                        <p className={styles.book_author}>{book[0].author}, {book[0].year}</p>
+                        <h3>{newBook.title}</h3>
+                        <p className={styles.book_author}>{newBook.authors}, {newBook.issueYear}</p>
 
                         <div className={styles.wrapper_button_book}>
-                            <Button buttonText={book[0].free ? 'ЗАБРОНИРОВАТЬ' : (book[0].returnDate ? `ЗАНЯТА ДО ${book[0].returnDate}` : 'ЗАБРОНИРОВАНО')} free={book[0].free} />
+                            <Button buttonText={newBook.delivery === null && newBook.booking === null ? 'ЗАБРОНИРОВАТЬ' : (newBook.booking === null ? 'ЗАБРОНИРОВАНО'  : `ЗАНЯТА ДО ${new Date(newBook.booking.dateOrder).getDate() >=10 ? new Date(newBook.booking.dateOrder).getDate() : `0${new Date(newBook.booking.dateOrder).getDate()}` }.${new Date(newBook.booking.dateOrder).getMonth() + 1 >= 10 ? new Date(newBook.booking.dateOrder).getMonth() + 1 : `0${new Date(newBook.booking.dateOrder).getMonth() + 1}` }
+                            `)} delivery={newBook.delivery} booking={newBook.booking}  order={newBook.booking?.order}/>
                         </div>
 
                         <section className={styles.book_description_wrapper}>
                             <h4>О книге</h4>
-                            <p className={styles.book_description}>Алгоритмы — это всего лишь пошаговые алгоритмы решения задач, и большинство таких задач уже были кем-то решены, протестированы и проверены. Можно, конечно, погрузится в глубокую философию гениального Кнута, изучить многостраничные фолианты с доказательствами и обоснованиями, но хотите ли вы тратить на это свое время? </p>
-                            <p className={styles.book_description}>Откройте великолепно иллюстрированную книгу и вы сразу поймете, что алгоритмы — это просто. А грокать алгоритмы — это веселое и увлекательное занятие.</p>
+                            <p className={styles.book_description}>{newBook.description} </p>
                         </section>
 
                     </section>
 
                 </section>
 
-                {/* ------------------- */}
+
 
                 <section className={styles.book_description_wrapper_second}>
-                            <h4>О книге</h4>
-                            <p className={styles.book_description}>Алгоритмы — это всего лишь пошаговые алгоритмы решения задач, и большинство таких задач уже были кем-то решены, протестированы и проверены. Можно, конечно, погрузится в глубокую философию гениального Кнута, изучить многостраничные фолианты с доказательствами и обоснованиями, но хотите ли вы тратить на это свое время? </p>
-                            <p className={styles.book_description}>Откройте великолепно иллюстрированную книгу и вы сразу поймете, что алгоритмы — это просто. А грокать алгоритмы — это веселое и увлекательное занятие.</p>
-                        </section>
+                    <h4>О книге</h4>
+                    <p className={styles.book_description}>{newBook.description}</p>
+                </section>
 
                 <div className={styles.book_rating}>
                     <h3>Рейтинг</h3>
                     <div className={styles.book_grade_list}>
-                        {[...new Array(book[0].grade)].map((item) => <img src={Star} alt='star' key={Math.random() * date.getMilliseconds()} />)}
-                        {5 - book[0].grade !== 5 ?
-                            [...new Array(5 - book[0].grade)].map((item) => <img src={StarEmpty} alt='starEmpty' key={date.getMilliseconds()} />) : [...new Array(5)].map((item) => <img src={StarEmpty} alt='starEmpty' key={Math.random() * date.getMilliseconds()} />)}
+                        {[...new Array(Math.floor(newBook.rating))].map((item) => <img src={Star} alt='star' key={Math.random() * date.getMilliseconds()} />)}
+                        {5 - newBook.rating !== 5 ?
+                            [...new Array(5 - Math.floor(newBook.rating))].map((item) => <img src={StarEmpty} alt='starEmpty' key={Math.random() * date.getMilliseconds()} />) : [...new Array(5)].map((item) => <img src={StarEmpty} alt='starEmpty' key={Math.random() * date.getMilliseconds()} />)}
 
-                        <div className={book[0].grade ? styles.book_grade : styles.book_grade_none}>
-                            {book[0].grade ? book[0].grade : 'еще нет оценок'}
+                        <div className={newBook.rating === null ? styles.book_grade_none :  styles.book_grade}>
+                            {newBook.rating === null ? 'еще нет оценок'  : newBook.rating}
                         </div>
                     </div>
                 </div>
@@ -106,42 +193,52 @@ export const BookPage: React.FC = () => {
                                     <td className={styles.tables_title}>Издательство</td><td >Питер</td>
                                 </tr>
                                 <tr>
-                                    <td className={styles.tables_title}>Год издания</td><td >2019</td>
+                                    <td className={styles.tables_title}>Год издания</td><td >{newBook.issueYear}</td>
                                 </tr>
                                 <tr>
-                                    <td className={styles.tables_title}>Страниц</td><td >288</td>
+                                    <td className={styles.tables_title}>Страниц</td><td >{newBook.pages} </td>
                                 </tr>
                                 <tr>
-                                    <td className={styles.tables_title}>Переплёт</td><td >Мягкая обложка</td>
+                                    <td className={styles.tables_title}>Переплёт</td><td >{newBook.cover}</td>
                                 </tr>
                                 <tr>
-                                    <td className={styles.tables_title}>Формат</td><td >70х100</td>
+                                    <td className={styles.tables_title}>Формат</td><td >{newBook.format}</td>
                                 </tr>
                             </tbody>
                         </table>
                         <table className={styles.book_tables_rigth}>
                             <tbody>
                                 <tr>
-                                    <td className={styles.tables_title}>Жанр</td><td>Компьютерная литература</td>
+                                    <td className={styles.tables_title}>Жанр</td><td>{newBook.categories}</td>
                                 </tr>
                                 <tr>
-                                    <td className={styles.tables_title}>Вес</td><td>370 г</td>
+                                    <td className={styles.tables_title}>Вес</td><td>{newBook.weight} г</td>
                                 </tr>
                                 <tr>
-                                    <td className={styles.tables_title}>ISBN</td><td>978-5-4461-0923-4</td>
+                                    <td className={styles.tables_title}>ISBN</td><td>{newBook.ISBN}</td>
                                 </tr>
                                 <tr>
-                                    <td className={styles.tables_title}> Изготовитель</td><td>ООО «Питер Мейл».РФ, 198 206, г. Санкт-Петербург, Петергофское ш, д.73, лит. А29</td>
+                                    <td className={styles.tables_title}> Изготовитель</td><td>{newBook.producer}</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
                 </section>
-                <Review grade={book[0].grade} />
-            </section>
+                {newBook.comments &&
+                newBook.comments.map((comment: Comments) => (
+                    <Review key={comment.id} rating={newBook.rating} delivery={newBook.delivery} booking={newBook.booking} createdAt={comment.createdAt} id={comment.id}  commentRating={comment.rating} text={comment.text} user={comment.user} comments={newBook.comments}/>
+                ))
+                }
+
+            </section>}
+        </section>
+
 
             <Footer />
         </section>
+        </React.Fragment>
+
+
     )
 };

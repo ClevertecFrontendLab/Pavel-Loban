@@ -7,50 +7,63 @@ import {Header} from '../../components/header';
 import { Message } from '../../components/message-after-loading/message';
 import { Search } from '../../components/search/search';
 import { Sections } from '../../components/sections';
-import {data} from '../../data'
 import { useAppDispatch,useAppSelector } from '../../hooks/redux-hooks';
 import { RootState } from '../../store';
-import {setIsLoading, setCloseError } from '../../store/card-slice';
+import { fetchBooks} from '../../store/books-slice';
 
 import styles from './main-page.module.scss';
 
 
 
-interface Book {
-    image: string,
-    id: number,
-    title:string,
-    author:string,
-    year: number,
-    free:boolean,
-    returnDate:string,
-    grade: number,
-}
 
 export const MainPage:React.FC = () => {
 
-    const { view, isLoading, closeError } = useAppSelector((state: RootState) => state.card);
+
+    const { view} = useAppSelector((state: RootState) => state.card);
     const { menuIsOpen} = useAppSelector((state: RootState) => state.burger);
+    const { books, status} = useAppSelector((state: RootState) => state.books);
+    const dispatch = useAppDispatch();
 
 
+const baseUrl = 'https://strapi.cleverland.by/api/books';
+
+const getScroll = () => {
+      window.scroll({
+        top: 0,
+        behavior: 'smooth',
+    })
+}
 
 React.useEffect(() => {
-    if(isLoading){
+    getScroll();
+
+    if(status === 'loading'){
+
         document.body.classList.add('preloader_true');
     }else{
         document.body.classList.remove('preloader_true');
     }
-},[isLoading])
+
+},[status])
+
+
+
+
+React.useEffect(() => {
+
+     dispatch(fetchBooks(baseUrl));
+}, [dispatch])
 
 
 
 return(
 
     <React.Fragment>
-    {isLoading ? <div className={styles.wrapper_preloader} > <Preloader className={styles.preloader} width={68.7} height={68.7} /></div>  : null}
+    {status === 'loading'  ? <div className={styles.wrapper_preloader} data-test-id='loader'
+> <Preloader className={styles.preloader} width={68.7} height={68.7} /></div>  : null}
     <section className={styles.main_page}>
 
-        {closeError ? <Message/> : ''}
+        {status === 'error' ? <Message/> : ''}
         <Header />
         <section className={styles.content}>
             <div
@@ -66,8 +79,9 @@ return(
         <div className={styles.container}>
         <Search/>
         <section className={view ?  styles.wrapper : styles.wrapper_list}>
-            {data.map((book) => (
-                <Card  key={book.id} id={book.id} image={book.image} title={book.title} author={book.author} year={book.year} free={book.free} returnDate={book.returnDate} grade={book.grade} book={book}/>
+            {
+            books.map((book) => (
+                <Card  key={book.id} id={book.id} image={book.image} title={book.title} authors={book.authors} issueYear={book.issueYear}  booking={book.booking} delivery={book.delivery} categories={book.categories} histories={book.histories} rating={book.rating} />
             ))}
         </section>
         </div>

@@ -16,17 +16,19 @@ const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 
 root.render(
 
-<React.StrictMode>
-    <Provider store={store}>
+  <React.StrictMode>
+  <Provider store={store}>
       <HashRouter basename="/">
         <Routes>
           <Route path='/' element={<Navigate to='books/all' />} />
-          <Route path='/book/:id' element={<BookPage />} />
+          <Route path='/books/all/:id' element={<BookPage />} />
           <Route path='/books/:subLink' element={<MainPage />} />
           <Route path='/rules' element={<Rules />} />
           <Route path='/contract' element={<Contract />} />
         </Routes>
       </HashRouter>
     </Provider>
-    </React.StrictMode>
+  </React.StrictMode>
+
+
 );
