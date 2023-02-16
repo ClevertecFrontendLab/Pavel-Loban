@@ -1,12 +1,11 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 
 import { ReactComponent as IconArrow } from '../../assets/image/icon-list-sections.svg';
 import { links } from '../../data';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux-hooks';
 import { RootState } from '../../store';
-import {fetchBooks} from '../../store/books-slice';
+import {fetchBooks, fetchCategories} from '../../store/books-slice';
 import { setCategoriesBooks, setMenuIsOpen } from '../../store/burger-slice';
 
 import styles from './sections.module.scss';
@@ -36,40 +35,40 @@ interface Props {
     isDesktop?: boolean,
 }
 
-interface Categories {
-    id: number,
-    path: string,
-    name: string,
-}
+
 
 export const Sections: React.FC<Props> = ({ dataId1, dataId2, isDesktop }) => {
 
     const box = React.useRef<HTMLUListElement>(null);
     const push = useNavigate();
     const location = useLocation();
-    const [messageError, setMessageError] = React.useState<any>([]);
+
     const dispatch = useAppDispatch();
-    const { categoriesBooks } = useAppSelector((state: RootState) => state.burger);
-    const {books, status} = useAppSelector((state: RootState) => state.books);
+    const { categoriesBooksShowOrHide } = useAppSelector((state: RootState) => state.burger);
+    const {books, status, booksCategories, statusCategories} = useAppSelector((state: RootState) => state.books);
     const getBook = (path: string) => {
         push(`/books/${path}`);
 
         dispatch(setMenuIsOpen(false));
-        dispatch(setCategoriesBooks(!categoriesBooks));
+        dispatch(setCategoriesBooks(!categoriesBooksShowOrHide));
 
     }
 
+
+
     const getAllBook = (path: string) => {
         const baseUrl = 'https://strapi.cleverland.by/api/books';
+
         push(`/books/${path}`);
 
         dispatch(setMenuIsOpen(false));
-        dispatch(setCategoriesBooks(!categoriesBooks));
+        dispatch(setCategoriesBooks(!categoriesBooksShowOrHide));
 
         dispatch(fetchBooks(baseUrl))
 
 
     }
+
 
     const [text, setText] = React.useState<Text[]>(links)
 
@@ -92,13 +91,11 @@ export const Sections: React.FC<Props> = ({ dataId1, dataId2, isDesktop }) => {
 
     const getRotateIconArrow = () => {
         setArrowUp(!arrowUp);
-        dispatch(setCategoriesBooks(!categoriesBooks));
+        dispatch(setCategoriesBooks(!categoriesBooksShowOrHide));
     }
 
 
 
-    const [categories, setCategories] = React.useState<Categories[]>([])
-    const URLCategories = 'https://strapi.cleverland.by/api/categories';
 
     React.useEffect(() => {
 
@@ -110,31 +107,11 @@ export const Sections: React.FC<Props> = ({ dataId1, dataId2, isDesktop }) => {
             document.body.classList.remove('preloader_true');
         }
 
-    },[status])
-
-
-    React.useEffect(() => {
-
-        const getCategories = async () => {
-            try {
-                const data = await axios.get(URLCategories);
-
-
-                setCategories(data.data)
-
-            } catch (error) {
-
-                setMessageError(error)
-            }
-
-            return null;
-        }
-
-        getCategories();
+    },[status, statusCategories])
 
 
 
-    }, [URLCategories])
+
 
 
 
@@ -171,18 +148,18 @@ export const Sections: React.FC<Props> = ({ dataId1, dataId2, isDesktop }) => {
 
 
                         {item.title === 'Витрина книг' ?
-                        <div className={styles.divFirst}>
+                        <div className={status === 'success' ?  styles.divFirst : styles.hide }>
                         <p data-test-id={dataId2}
                                          className={location.pathname.includes('all') ? styles.sectionsBooksActive : styles.sectionsBooks} onClick={() => getAllBook('all')} role='presentation'
-                                        style={{ display: categoriesBooks ? 'none' : 'block' }}
+                                        style={{ display: categoriesBooksShowOrHide ? 'none' : 'block' }}
                                     >Все книги </p>
 
-                                {categories.map((item) => (
+                                {booksCategories.map((item) => (
 
                                     <p key={item.path} className={location.pathname.includes(item.path) ? styles.sectionsBooksActive : styles.sectionsBooks} onClick={() => getBook(item.path)} role='presentation'
-                                        style={{ display: categoriesBooks ? 'none' : 'block' }}
+                                        style={{ display: categoriesBooksShowOrHide ? 'none' : 'block' }}
                                     >{item.name}
-                                    <span>{books.filter((book) => book.categories[0] === item.name).length }</span>
+                                    <span>{books.filter((book)  => book.categories[0] === item.name).length }</span>
                                     </p>
                             ))}
 

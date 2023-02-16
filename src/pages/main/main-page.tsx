@@ -1,15 +1,15 @@
 import React from 'react';
 
 import {ReactComponent as  Preloader} from '../../assets/image/preloader.svg';
+import { Alert } from '../../components/alert/alert';
 import { Card } from '../../components/card';
 import { Footer } from '../../components/footer';
 import {Header} from '../../components/header';
-import { Message } from '../../components/message-after-loading/message';
 import { Search } from '../../components/search/search';
 import { Sections } from '../../components/sections';
 import { useAppDispatch,useAppSelector } from '../../hooks/redux-hooks';
 import { RootState } from '../../store';
-import { fetchBooks} from '../../store/books-slice';
+import { fetchBooks, fetchCategories} from '../../store/books-slice';
 
 import styles from './main-page.module.scss';
 
@@ -26,7 +26,7 @@ export const MainPage:React.FC = () => {
 
 
 const baseUrl = 'https://strapi.cleverland.by/api/books';
-
+const URLCategories = 'https://strapi.cleverland.by/api/categories';
 const getScroll = () => {
       window.scroll({
         top: 0,
@@ -52,6 +52,7 @@ React.useEffect(() => {
 React.useEffect(() => {
 
      dispatch(fetchBooks(baseUrl));
+     dispatch(fetchCategories(URLCategories))
 }, [dispatch])
 
 
@@ -63,7 +64,7 @@ return(
 > <Preloader className={styles.preloader} width={68.7} height={68.7} /></div>  : null}
     <section className={styles.main_page}>
 
-        {status === 'error' ? <Message/> : ''}
+        {status === 'error' ? <Alert/> : ''}
         <Header />
         <section className={styles.content}>
             <div

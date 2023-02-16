@@ -8,7 +8,7 @@ import {setCloseError } from '../../store/card-slice';
 
 import styles from './styles.module.scss';
 
-export const Message: React.FC = () => {
+export const Alert: React.FC = () => {
 
   const {  closeError } = useAppSelector((state: RootState) => state.card);
   const dispatch = useAppDispatch();
