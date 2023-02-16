@@ -10,7 +10,7 @@ export const links = [
     testIdBoorger: 'burger-showcase',
     sectionsBooks: [
       {
-        subSectionsBooks: 'Все книги',
+        subSectionsBooks: 'Все книгии',
         count: null,
         active: true,
         subLink: 'all',
