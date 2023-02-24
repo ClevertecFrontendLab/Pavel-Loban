@@ -9,10 +9,10 @@ import styles from './breadCrumbs.module.scss';
 
 interface Props {
   title: string,
-  categories: string[],
+
 }
 
-export const BreadCrumbs: React.FC<Props> = ({title, categories}) => {
+export const BreadCrumbs: React.FC<Props> = ({title}) => {
 
   const push = useNavigate();
   const dispatch = useAppDispatch();
@@ -20,11 +20,20 @@ export const BreadCrumbs: React.FC<Props> = ({title, categories}) => {
   const { booksCategories} = useAppSelector((state: RootState) => state.books);
   const baseUrl = 'https://strapi.cleverland.by/api/books';
 
-  const backToPreviousPage = () => {
-    push(`/books${pathToReturnBack}`)
 
-    dispatch(fetchBooks(baseUrl));
+
+
+
+
+
+  const backToPreviousPage =  () => {
+
+    push(`/books${pathToReturnBack}`)
+   dispatch(fetchBooks(baseUrl));
+
   }
+
+
 
 
 

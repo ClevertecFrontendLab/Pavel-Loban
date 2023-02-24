@@ -9,7 +9,7 @@ import { Search } from '../../components/search/search';
 import { Sections } from '../../components/sections';
 import { useAppDispatch,useAppSelector } from '../../hooks/redux-hooks';
 import { RootState } from '../../store';
-import {Book, fetchBooks, fetchCategories} from '../../store/books-slice';
+import {Book, fetchBooks,fetchCategories} from '../../store/books-slice';
 import {setPathToReturnBack} from '../../store/filter-books-slice';
 
 import styles from './main-page.module.scss';
@@ -25,7 +25,7 @@ export const MainPage:React.FC = () => {
 
     const { view} = useAppSelector((state: RootState) => state.card);
 
-    const { books, status, booksCategories, statusCategories} = useAppSelector((state: RootState) => state.books);
+    const { books, status, booksCategories, statusCategories, } = useAppSelector((state: RootState) => state.books);
     const dispatch = useAppDispatch();
 
     const { search, isDescSort, pathToReturnBack } = useAppSelector((state: RootState) => state.filter);
@@ -63,7 +63,7 @@ React.useEffect(() => {
 
 
 React.useEffect(() => {
-    if(books.length === 0){
+    if(books.length === 0 ){
         dispatch(fetchBooks(baseUrl));
     }
 
@@ -76,7 +76,9 @@ React.useEffect(() => {
 
 
 
-const category = booksCategories.find((bookCategory) => bookCategory.path === subLink)?.name ?? undefined;
+
+
+const category = booksCategories.find((bookCategory) =>  bookCategory.path === subLink)?.name ?? undefined;
 const booksByCategory = category ? books.filter((book) => book.categories.includes(category)) : books;
 const booksBySearchTerm = search ? booksByCategory.filter((book) => book.title.toLowerCase().includes(search.toLowerCase())) : booksByCategory;
 const finalBooksList = [...booksBySearchTerm] ?? [];

@@ -21,6 +21,7 @@ export const fetchBooks = createAsyncThunk(
   }
 );
 
+
 export enum Status {
   NOTHING = 'nothing',
   LOADING = 'loading',
@@ -103,6 +104,7 @@ const booksSlice = createSlice({
       newState.books = action.payload;
     },
 
+
   },
 
   extraReducers: (builder) => {
@@ -110,7 +112,6 @@ const booksSlice = createSlice({
       const newState = state;
 
       newState.status = Status.LOADING;
-      newState.books = [];
     });
 
     builder.addCase(fetchBooks.fulfilled, (state, action: PayloadAction<Book[]>) => {
@@ -126,6 +127,10 @@ const booksSlice = createSlice({
       newState.status = Status.ERROR;
       newState.books = [];
     });
+
+
+
+
 
     builder.addCase(fetchCategories.pending, (state) => {
       const newState = state;
@@ -150,6 +155,6 @@ const booksSlice = createSlice({
   },
 });
 
-export const { setLoading, setBooks } = booksSlice.actions;
+export const { setLoading, setBooks} = booksSlice.actions;
 
 export default booksSlice.reducer;

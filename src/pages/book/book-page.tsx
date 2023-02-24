@@ -72,7 +72,6 @@ export const BookPage: React.FC = () => {
 
         <React.Fragment>
 
-
 {!book && <div className={styles.title_error}>
                 <div>
                 <p> Бизнес книги / Грокаем алгоритмы. Иллюстрированное пособие для программистов и любопытствующих
@@ -83,9 +82,6 @@ export const BookPage: React.FC = () => {
 
 
             <section className={styles.book_page}>
-
-                {/* {statusPageBook === 'error' ? <div className={styles.message}><Alert/></div>  : ''} */}
-
 
 
 
@@ -98,10 +94,8 @@ export const BookPage: React.FC = () => {
 
                         {!!book && <React.Fragment>
 
-                            {/* <p className={styles.title}>
-                                {book.categories} / {book.title}
-                            </p> */}
-                            <BreadCrumbs categories={book.categories} title={book.title} />
+
+                            <BreadCrumbs  title={book.title} />
                             <section className={styles.book_wrapper}>
                                 <div className={styles.swiper}>
                                     <Sswiper img={book.images} bookImages={book.images} />
