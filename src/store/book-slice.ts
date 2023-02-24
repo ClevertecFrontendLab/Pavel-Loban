@@ -13,6 +13,7 @@ export const fetchBook = createAsyncThunk(
   );
 
 export enum StatusPageBook {
+  NOTHING = 'nothing',
     LOADING = 'loading',
     SUCCESS = 'success',
     ERROR = 'error',
@@ -73,7 +74,7 @@ interface Comments {
 
   const initialState: BookPageState = {
     book: null  ,
-    statusPageBook: StatusPageBook.LOADING,
+    statusPageBook: StatusPageBook.NOTHING,
   };
 
 
@@ -81,11 +82,7 @@ interface Comments {
     name: 'book',
     initialState,
     reducers: {
-    //   setLoading(state, action: PayloadAction<string>) {
-    //     const newState = state;
 
-    //     newState.loading = action.payload;
-    //   },
     },
 
     extraReducers: (builder) => {
@@ -114,6 +111,6 @@ interface Comments {
     },
   });
 
-// export const {  } = bookPageSlice.actions;
+
 
 export default bookPageSlice.reducer;

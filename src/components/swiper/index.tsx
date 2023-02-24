@@ -63,7 +63,7 @@ data-test-id='slide-big'
       >
         {img.map((imag:ImageUrl) =>
         (
-          <SwiperSlide key={Math.random() * date.getMilliseconds()}>
+          <SwiperSlide key={imag.url}>
           <img src={`https://strapi.cleverland.by${imag.url}`} alt='book' />
         </SwiperSlide>
         ))}
@@ -81,15 +81,15 @@ data-test-id='slide-big'
         <Swiper
         onSwiper={setThumbsSwiper}
         spaceBetween={5}
-        slidesPerView={ bookImages.length}
+        slidesPerView={ 5}
         freeMode={true}
         watchSlidesProgress={true}
         modules={[FreeMode, Navigation, Thumbs]}
         className="mySwiper"
       >
-        {bookImages.map((bookImg) => (
+        {img.map((bookImg) => (
             <SwiperSlide data-test-id='slide-mini' key={Math.random() * date.getMilliseconds()}>
-            <img src={ bookImg } alt='book' />
+            <img src={ `https://strapi.cleverland.by${bookImg.url}` } alt='book' />
           </SwiperSlide>
         ))}
 

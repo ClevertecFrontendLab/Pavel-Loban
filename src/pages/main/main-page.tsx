@@ -1,28 +1,34 @@
 import React from 'react';
+import { useLocation } from 'react-router';
+import { useParams } from 'react-router-dom';
 
-import {ReactComponent as  Preloader} from '../../assets/image/preloader.svg';
-import { Alert } from '../../components/alert/alert';
+import { AlertBooksNone } from '../../components/alert-books-none/alert-books-none';
+import { AlertSearch } from '../../components/alert-search-books/alert-search';
 import { Card } from '../../components/card';
-import { Footer } from '../../components/footer';
-import {Header} from '../../components/header';
 import { Search } from '../../components/search/search';
 import { Sections } from '../../components/sections';
 import { useAppDispatch,useAppSelector } from '../../hooks/redux-hooks';
 import { RootState } from '../../store';
-import { fetchBooks, fetchCategories} from '../../store/books-slice';
+import {Book, fetchBooks, fetchCategories} from '../../store/books-slice';
+import {setPathToReturnBack} from '../../store/filter-books-slice';
 
 import styles from './main-page.module.scss';
 
 
 
-
 export const MainPage:React.FC = () => {
+
+    const { subLink } = useParams();
+
+    const location = useLocation();
 
 
     const { view} = useAppSelector((state: RootState) => state.card);
-    const { menuIsOpen} = useAppSelector((state: RootState) => state.burger);
-    const { books, status} = useAppSelector((state: RootState) => state.books);
+
+    const { books, status, booksCategories, statusCategories} = useAppSelector((state: RootState) => state.books);
     const dispatch = useAppDispatch();
+
+    const { search, isDescSort, pathToReturnBack } = useAppSelector((state: RootState) => state.filter);
 
 
 const baseUrl = 'https://strapi.cleverland.by/api/books';
@@ -33,6 +39,13 @@ const getScroll = () => {
         behavior: 'smooth',
     })
 }
+
+React.useEffect(() => {
+    const topicalPath = location.pathname.replace('/books','')
+
+    dispatch(setPathToReturnBack(topicalPath));
+
+},[location, dispatch])
 
 React.useEffect(() => {
     getScroll();
@@ -50,47 +63,95 @@ React.useEffect(() => {
 
 
 React.useEffect(() => {
+    if(books.length === 0){
+        dispatch(fetchBooks(baseUrl));
+    }
 
-     dispatch(fetchBooks(baseUrl));
-     dispatch(fetchCategories(URLCategories))
-}, [dispatch])
+
+     if(booksCategories.length === 0){
+        dispatch(fetchCategories(URLCategories))
+     }
+
+}, [dispatch, books.length, booksCategories.length])
 
 
+
+const category = booksCategories.find((bookCategory) => bookCategory.path === subLink)?.name ?? undefined;
+const booksByCategory = category ? books.filter((book) => book.categories.includes(category)) : books;
+const booksBySearchTerm = search ? booksByCategory.filter((book) => book.title.toLowerCase().includes(search.toLowerCase())) : booksByCategory;
+const finalBooksList = [...booksBySearchTerm] ?? [];
+
+if (isDescSort) {
+    finalBooksList.sort((a,b) => {
+
+        if(a.rating === b.rating){
+            return 0;
+        }
+
+        if(a.rating === null ){
+            return  1
+        }
+
+        if(b.rating === null ){
+            return  -1
+        }
+
+        return a.rating < b.rating ? 1 : -1
+    })
+} else {
+    finalBooksList.sort((a,b) => {
+
+        if(a.rating === b.rating){
+            return 0;
+        }
+        if(a.rating === null ){
+           return  -1
+        }
+        if(b.rating === null ){
+            return  1
+         }
+
+        return a.rating > b.rating ? 1 : -1
+    })
+}
 
 return(
 
-    <React.Fragment>
-    {status === 'loading'  ? <div className={styles.wrapper_preloader} data-test-id='loader'
-> <Preloader className={styles.preloader} width={68.7} height={68.7} /></div>  : null}
-    <section className={styles.main_page}>
 
-        {status === 'error' ? <Alert/> : ''}
-        <Header />
+
         <section className={styles.content}>
-            <div
-            onClick={e => e.stopPropagation() } role='presentation'
-            className={ menuIsOpen ? styles.burger_menu_active :styles.burger_menu}>
-            <Sections dataId1='burger-showcase' dataId2='burger-books' isDesktop={false}/>
-            </div>
+
 
             <div className={styles.menu}>
-            <Sections dataId1='navigation-showcase' dataId2='navigation-books' isDesktop={true}/>
+            <Sections dataId1='navigation-showcase' dataId2='navigation-books' dataIdCategory='navigation' isDesktop={true}/>
             </div>
 
         <div className={styles.container}>
-        <Search/>
+        <Search  />
+
         <section className={view ?  styles.wrapper : styles.wrapper_list}>
-            {
-            books.map((book) => (
+
+
+            { finalBooksList.length === 0 && search !== ''
+             ?
+            <AlertSearch  />
+            :
+            (
+                books.length && finalBooksList.length === 0 && search === ''
+
+                ?
+                <AlertBooksNone/>
+                :
+                finalBooksList.map((book) => (
                 <Card  key={book.id} id={book.id} image={book.image} title={book.title} authors={book.authors} issueYear={book.issueYear}  booking={book.booking} delivery={book.delivery} categories={book.categories} histories={book.histories} rating={book.rating} />
-            ))}
+            ))
+            )
+        }
         </section>
         </div>
 
-        </section>
 
-        <Footer/>
     </section>
-    </React.Fragment>
+
 
 )};

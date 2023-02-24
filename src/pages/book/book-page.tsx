@@ -6,7 +6,8 @@ import Star from '../../assets/image/icon_star.svg';
 import StarEmpty from '../../assets/image/icon_star_empty.svg';
 import { ReactComponent as Preloader } from '../../assets/image/preloader.svg';
 import { Alert } from '../../components/alert/alert';
-import { BreadCrumbs } from '../../components/bread-crumbs/bread-crumbs';
+
+import { BooksInfoHeader} from '../../components/books-info-header/books-info-header';
 import { Button } from '../../components/button';
 import { Footer } from '../../components/footer';
 import { Header } from '../../components/header';
@@ -19,6 +20,7 @@ import { RootState } from '../../store';
 import { fetchBook } from '../../store/book-slice';
 
 import styles from './book-page.module.scss';
+import { BreadCrumbs } from '../../components/bread crumbs/bread-crumbs';
 
 
 
@@ -33,7 +35,6 @@ export const BookPage: React.FC = () => {
     const { book, statusPageBook } = useAppSelector((state: RootState) => state.book);
     const date = new Date()
     const { id } = useParams();
-
 
 
 
@@ -70,8 +71,7 @@ export const BookPage: React.FC = () => {
     return (
 
         <React.Fragment>
-            {statusPageBook === 'loading' ? <div className={styles.wrapper_preloader} data-test-id='loader'
-            > <Preloader className={styles.preloader} width={68.7} height={68.7} /></div> : null}
+
 
 {!book && <div className={styles.title_error}>
                 <div>
@@ -83,18 +83,14 @@ export const BookPage: React.FC = () => {
 
 
             <section className={styles.book_page}>
-                <Header />
-                {statusPageBook === 'error' ? <div className={styles.message}><Alert/></div>  : ''}
+
+                {/* {statusPageBook === 'error' ? <div className={styles.message}><Alert/></div>  : ''} */}
 
 
 
 
                 <section className={styles.content}>
-                    <div
-                        onClick={e => e.stopPropagation()} role='presentation'
-                        className={menuIsOpen ? styles.burger_menu_active : styles.burger_menu}>
-                        <Sections dataId1='burger-showcase' dataId2='burger-books' isDesktop={false} />
-                    </div>
+
 
 
                     <section className={styles.content}>
@@ -102,16 +98,17 @@ export const BookPage: React.FC = () => {
 
                         {!!book && <React.Fragment>
 
-                            <p className={styles.title}>
+                            {/* <p className={styles.title}>
                                 {book.categories} / {book.title}
-                            </p>
+                            </p> */}
+                            <BreadCrumbs categories={book.categories} title={book.title} />
                             <section className={styles.book_wrapper}>
                                 <div className={styles.swiper}>
                                     <Sswiper img={book.images} bookImages={book.images} />
                                 </div>
                                 <section className={styles.book_info}>
 
-    <BreadCrumbs title={book.title} author={book.authors} year={book.issueYear}  />
+    <BooksInfoHeader title={book.title} author={book.authors} year={book.issueYear}  />
                                     <div className={styles.wrapper_button_book}>
                                         <Button buttonText={book.delivery === null && book.booking === null ? 'ЗАБРОНИРОВАТЬ' : (book.booking === null ? 'ЗАБРОНИРОВАНО' : `ЗАНЯТА ДО ${new Date(book.booking.dateOrder).getDate() >= 10 ? new Date(book.booking.dateOrder).getDate() : `0${new Date(book.booking.dateOrder).getDate()}`}.${new Date(book.booking.dateOrder).getMonth() + 1 >= 10 ? new Date(book.booking.dateOrder).getMonth() + 1 : `0${new Date(book.booking.dateOrder).getMonth() + 1}`}
                             `)} delivery={book.delivery} booking={book.booking} order={book.booking?.order} />
@@ -158,7 +155,7 @@ export const BookPage: React.FC = () => {
                 </section>
 
 
-                <Footer />
+
             </section>
         </React.Fragment>
 

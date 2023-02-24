@@ -7,8 +7,6 @@ export const fetchCategories = createAsyncThunk(
   async (urlCategories: string) => {
     const data = await axios.get(urlCategories);
 
-
-
     return data.data;
   }
 );
@@ -24,12 +22,14 @@ export const fetchBooks = createAsyncThunk(
 );
 
 export enum Status {
+  NOTHING = 'nothing',
   LOADING = 'loading',
   SUCCESS = 'success',
   ERROR = 'error',
 }
 
 export enum StatusCategories {
+  NOTHING = 'nothing',
   LOADING = 'loading',
   SUCCESS = 'success',
   ERROR = 'error',
@@ -81,8 +81,8 @@ interface BooksState {
 
 const initialState: BooksState = {
   books: [],
-  status: Status.LOADING,
-  statusCategories: StatusCategories.LOADING,
+  status: Status.NOTHING,
+  statusCategories: StatusCategories.NOTHING,
   loading: '',
   booksCategories: [],
 };
@@ -96,6 +96,13 @@ const booksSlice = createSlice({
 
       newState.loading = action.payload;
     },
+
+    setBooks(state, action: PayloadAction<Book[]>) {
+      const newState = state;
+
+      newState.books = action.payload;
+    },
+
   },
 
   extraReducers: (builder) => {
@@ -143,6 +150,6 @@ const booksSlice = createSlice({
   },
 });
 
-export const { setLoading } = booksSlice.actions;
+export const { setLoading, setBooks } = booksSlice.actions;
 
 export default booksSlice.reducer;
