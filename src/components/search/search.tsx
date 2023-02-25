@@ -1,15 +1,18 @@
+
 import React from 'react';
 import cnBind from 'classnames/bind';
 
 import { ReactComponent as CloseSearch } from '../../assets/image/close-search.svg';
 import { ReactComponent as List } from '../../assets/image/list2.svg';
 import IconSearch from '../../assets/image/search.svg';
-import IconSelect from '../../assets/image/select.svg';
+import { ReactComponent as IconSelectDown} from '../../assets/image/select.svg';
+import { ReactComponent as IconSelectUp} from '../../assets/image/selectUp.svg';
 import { ReactComponent as Tile } from '../../assets/image/tile2.svg';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux-hooks';
 import { RootState } from '../../store';
+import { Book,setBooks } from '../../store/books-slice';
 import { setView,setViewList } from '../../store/card-slice';
-import { setSort } from '../../store/sort-slice';
+import {setIsDescSort,setSearch } from '../../store/filter-books-slice';
 
 import styles from './search.module.scss';
 
@@ -18,6 +21,8 @@ interface Lists{
 }
 
 const cx = cnBind.bind(styles);
+
+
 
 export const Search:React.FC = () => {
 
@@ -28,8 +33,10 @@ export const Search:React.FC = () => {
     const inputIconRef = React.useRef<HTMLImageElement>(null);
     const dispatch = useAppDispatch();
     const { view } = useAppSelector((state: RootState) => state.card);
-    const { status} = useAppSelector((state: RootState) => state.books);
+    const { status,books} = useAppSelector((state: RootState) => state.books);
     const { sort } = useAppSelector((state: RootState) => state.sort);
+
+    const { search,isDescSort } = useAppSelector((state: RootState) => state.filter);
 
 
     const getView = () => {
@@ -44,24 +51,14 @@ export const Search:React.FC = () => {
     },[view])
 
 
-    const [isVisiblePopup,setIsVisiblePopup] = React.useState(false);
     const [isVisibleInput,setIsVisibleInput] = React.useState(false);
-    const list = [
-        {name:'По рейтингу' },
-        {name:'По популярности '},
-        ];
 
-    const getPopupVisible = () => {
-        setIsVisiblePopup(true);
+
+    const getSortBooks = () => {
+        dispatch(setIsDescSort(!isDescSort));
     }
 
-    const getPopupHide = (key:string,list:Lists) => {
-        setIsVisiblePopup(false);
 
-        if(key===list.name){
-            dispatch(setSort(list.name));
-        }
-    }
 
     const hideAndShowInputSearch = () => {
         setIsVisibleInput(true)
@@ -80,22 +77,6 @@ export const Search:React.FC = () => {
     },[isVisibleInput])
 
 
-    React.useEffect(() => {
-        const onClickOutsideSort = (e: MouseEvent) => {
-        const ee = e;
-
-            if(ee.target !== sortRef.current &&  ee.target !== sortRefPopup.current){
-                setIsVisiblePopup(false);
-            }
-        }
-
-        document.body.addEventListener('click',onClickOutsideSort)
-
-        return () => {
-          document.body.removeEventListener('click',onClickOutsideSort);
-        };
-      },[])
-
 
 return(
     <section className={ status === 'success' ? styles.main_search : styles.hide}>
@@ -106,34 +87,54 @@ return(
  className={styles.close_search} onClick={closeInputSearch} role='presentation' >
             <CloseSearch />
             </div>}
+
             <section data-test-id='button-search-open' ref={inputBlockRef} className={isVisibleInput ? styles.hide :  styles.section_icon_search}
             onClick={hideAndShowInputSearch} role='presentation'>
                 <img ref={inputIconRef} src={IconSearch} alt='search' className={styles.icon_search} onClick={hideAndShowInputSearch} role='presentation'/>
             </section>
+
+
+
+
+
             <input data-test-id='input-search' ref={inputRef} className={ isVisibleInput ? styles.input_visible : styles.input}
                 name='text'
                 type='text'
-                placeholder='Поиск книги или автора'
+                value={search}
+                onChange={(e) => dispatch(setSearch(e.target.value))}
+                placeholder='Поиск книги или автора…'
             />
 
-{!isVisibleInput && <section  className={styles.section_icon_select} >
-                <img ref = {sortRef} src={IconSelect} alt='select' className={styles.icon_select}
-                onClick={getPopupVisible} role='presentation'
-                />
+
+
+
+
+{!isVisibleInput && <section  className={styles.section_icon_select}
+data-test-id='sort-rating-button'
+onClick={getSortBooks} role='presentation'>
+
+                {isDescSort
+                ?
+                <React.Fragment>
+                <IconSelectUp className={styles.icon_select}
+                onClick={getSortBooks} role='presentation'/>
                 <span ref = {sortRefPopup}
-                onClick={getPopupVisible} role='presentation'
+                onClick={getSortBooks} role='presentation'
                 >{sort.name}</span>
-                { isVisiblePopup && (
-            <div className={styles.sort__popup}>
-         <ul >
-          {list.map((obj)=> <li  key={obj.name}
-            onClick={() => getPopupHide(obj.name, obj)} role='presentation'
-          >
-            {obj.name}
-            </li>)}
-         </ul>
-       </div>
-)}
+                </React.Fragment>
+
+                :
+                <React.Fragment>
+                <IconSelectDown className={styles.icon_select}
+                onClick={getSortBooks} role='presentation'/>
+                <span ref = {sortRefPopup}
+                onClick={getSortBooks} role='presentation'
+                >{sort.name}</span>
+                </React.Fragment>
+
+            }
+
+
             </section>
 }
         </section>
