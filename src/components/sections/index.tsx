@@ -36,11 +36,7 @@ interface Props {
     isDesktop?: boolean,
 }
 
-interface Categories {
-    id: number,
-    path: string,
-    name: string,
-}
+
 
 export const Sections: React.FC<Props> = ({ dataId1, dataId2, isDesktop, dataIdCategory }) => {
 
