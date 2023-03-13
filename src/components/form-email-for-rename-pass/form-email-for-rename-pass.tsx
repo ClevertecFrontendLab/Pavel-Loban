@@ -12,6 +12,7 @@ import { FormButton } from '../form-button/form-button';
 import { InputNameOrLastName } from '../inputs/input-name-or-last-name/input';
 
 import styles from './form-email-for-rename-pass.module.scss';
+import { TitleForm } from '../title-form/title-form';
 
 
 
@@ -104,10 +105,11 @@ export const Schema = Yup.object().shape({
                                              onClick={getAuthPage} />
                                 <nav>Вход в личный кабинет</nav>
                             </div>
-                             <div className={styles.form_header}>
+                             {/* <div className={styles.form_header}>
 
                                  <h3 className={styles.auth_title}>Восстановление пароля</h3>
-                             </div>
+                             </div> */}
+                             <TitleForm title='Восстановление пароля'/>
 
 
                              <section className={styles.inputs_wrapper}>

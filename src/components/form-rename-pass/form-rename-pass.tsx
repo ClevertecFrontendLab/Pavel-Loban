@@ -12,6 +12,7 @@ import { InputRenamePass } from '../inputs/input-rename-pass/input-rename-pass';
 import { InputRepeatPass } from '../inputs/input-repeat-pass/input-repeat-pass';
 
   import styles from './form-rename-pass.module.scss'
+import { TitleForm } from '../title-form/title-form';
 
 interface Props{
     code: string,
@@ -114,9 +115,11 @@ interface Props{
                               onSubmit={handleSubmit}
                               data-test-id='reset-password-form'
                           >
-                              <div className={styles.form_header}>
+                              {/* <div className={styles.form_header}>
                                   <h3 className={styles.auth_title}>Восстановление пароля</h3>
-                              </div>
+                              </div> */}
+
+<TitleForm title='Восстановление пароля'/>
 
 
 

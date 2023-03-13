@@ -1,32 +1,25 @@
 
+
 import React from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import  { AxiosError } from 'axios';
 import { Formik } from 'formik';
-import * as Yup from 'yup';
 
 import { ReactComponent as ArrowRight } from '../../assets/image/arrow-right.svg';
 import { Flow } from '../../components/flow/flow';
 import { FormButton } from '../../components/form-button/form-button';
 import { InputSignInName } from '../../components/inputs/input-signin-name/input-signin-name';
 import { InputSignInPass } from '../../components/inputs/input-signin-pass/input-signin-pass';
+import { TitleForm } from '../../components/title-form/title-form';
 import { useAppDispatch } from '../../hooks/redux-hooks';
 import {instance} from '../../services'
-import { setAuthLoader} from '../../store/form-slice';
+import { postAuth, setAuthLoader} from '../../store/form-slice';
 import { setUser } from '../../store/user-slice';
+import { SchemaSignIn } from '../../validations-shema';
 
 import styles from './signin.module.scss';
 
 
-
-
-export const Schema = Yup.object().shape({
-    identifier: Yup.string().required('Поле не может быть пустым')
-    ,
-    password: Yup.string()
-        .required('Поле не может быть пустым')
-
-});
 
 export const SigninPage = () => {
 
@@ -35,30 +28,28 @@ export const SigninPage = () => {
 
     const [visiblePass, setVisiblePass] = React.useState<boolean>(false);
 
-    const getVisibilityPassword = () => {
-        setVisiblePass(!visiblePass);
-    }
+
 
     const [err, setErr] = React.useState<boolean>(false)
     const [errFlow, setErrFlow] = React.useState<boolean>(false)
 
-
-
-
     const token = localStorage.getItem('tokenData');
 
-
+    const getVisibilityPassword = () => {
+        setVisiblePass(!visiblePass);
+    }
 
      const authorize = async (username: string, password: string, resetForm: () => void) => {
-        try {
-            dispatch(setAuthLoader(true))
-          const { data } = await instance.post('/api/auth/local', {
+
+        const dataAuth = {
             'identifier':username,
-            'password':password
-          });
+             'password':password
+        }
 
-
-          localStorage.setItem('tokenData', data.jwt);
+try {
+    dispatch(setAuthLoader(true))
+    const data = await postAuth(dataAuth);
+      localStorage.setItem('tokenData', data.jwt);
           localStorage.setItem('user', JSON.stringify(data.user));
           const userLocalStorage= localStorage.getItem('user');
           const user = userLocalStorage ? JSON.parse(userLocalStorage) : null;
@@ -68,8 +59,8 @@ export const SigninPage = () => {
           push('/books/all');
           dispatch(setAuthLoader(false))
 
-        } catch (error) {
-            const err = error as AxiosError
+} catch (error) {
+    const err = error as AxiosError
 
           if(err.response?.status === 400){
             setErr(true);
@@ -82,7 +73,42 @@ export const SigninPage = () => {
             dispatch(setAuthLoader(false))
         }
         }
-      };
+}
+
+
+        // try {
+        //     dispatch(setAuthLoader(true))
+        //   const { data } = await instance.post('/api/auth/local', {
+        //     'identifier':username,
+        //     'password':password
+        //   });
+
+
+        //   localStorage.setItem('tokenData', data.jwt);
+        //   localStorage.setItem('user', JSON.stringify(data.user));
+        //   const userLocalStorage= localStorage.getItem('user');
+        //   const user = userLocalStorage ? JSON.parse(userLocalStorage) : null;
+
+        //   dispatch(setUser(data.user))
+
+        //   push('/books/all');
+        //   dispatch(setAuthLoader(false))
+
+        // } catch (error) {
+        //     const err = error as AxiosError
+
+        //   if(err.response?.status === 400){
+        //     setErr(true);
+        //     dispatch(setAuthLoader(false))
+        // }
+
+        // if(err.response?.status !== 400){
+        //     setErrFlow(true);
+        //     resetForm()
+        //     dispatch(setAuthLoader(false))
+        // }
+        // }
+    //   };
 
 
     const getRegistrationPage = () => {
@@ -117,7 +143,7 @@ export const SigninPage = () => {
                     identifier: '',
                     password: '',
                 }}
-                validationSchema={Schema}
+                validationSchema={SchemaSignIn}
                 onSubmit={(values,{resetForm}) => {authorize(values.identifier, values.password, resetForm)}}
             >
                 {({
@@ -139,9 +165,10 @@ export const SigninPage = () => {
                      <Flow title='Вход не выполнен' getPage={() =>  getSignInForm(resetForm)} buttonText='ПОВТОРИТЬ' flowText='Что-то пошло не так. Попробуйте еще раз' />
                     :
                     <section className={styles.auth_form}>
-                     <div className={styles.form_header}>
+                     {/* <div className={styles.form_header}>
                                 <h3 className={styles.auth_title}>Вход в личный кабинет</h3>
-                            </div>
+                            </div> */}
+                            <TitleForm  title='Вход в личный кабинет'/>
                     <form className={styles.form}
                             onSubmit={handleSubmit}
                             data-test-id='auth-form'

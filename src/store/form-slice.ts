@@ -1,6 +1,7 @@
 
 import {createSlice, PayloadAction } from '@reduxjs/toolkit';
-
+import axios, { AxiosError } from 'axios';
+import { instance } from '../services';
 
 
 interface Form {
@@ -160,4 +161,35 @@ export const {
 
 export default formSlice.reducer;
 
+interface Reg {
+  email: string,
+  username: string,
+  password: string,
+  firstName: string,
+  lastName: string,
+  phone:string,
+}
+
+interface Auth {
+  identifier: string,
+  password: string,
+}
+
+export const postRegister = async (payload: Reg) => {
+  const baseUrl = 'https://strapi.cleverland.by/api/auth/local/register';
+
+  const result = await axios.post(baseUrl, payload);
+
+
+  return result.data;
+}
+
+export const postAuth = async (payload: Auth) => {
+
+  const result = await instance.post('/api/auth/local', payload);
+
+
+  return result.data;
+
+}
 
