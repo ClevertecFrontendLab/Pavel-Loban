@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 
 import {ReactComponent as  Preloader} from '../../assets/image/preloader.svg';
 import {useAppSelector } from '../../hooks/redux-hooks';
@@ -13,34 +13,48 @@ import styles from './layout.module.scss';
 
 export const Layout = () => {
 
+
   const { menuIsOpen} = useAppSelector((state: RootState) => state.burger);
-  const {status, statusCategories, booksCategories, books} = useAppSelector((state: RootState) => state.books);
+  const {status, statusCategories, books} = useAppSelector((state: RootState) => state.books);
 
   const {statusPageBook } = useAppSelector((state: RootState) => state.book);
 
+  const token  = localStorage.getItem('tokenData') ;
 
   return (
+
   <React.Fragment >
+
   {((status === 'loading' && books.length === 0 ) || statusPageBook ===   'loading' ||  statusCategories === 'loading')  ? <div className={styles.wrapper_preloader} data-test-id='loader'
 > <Preloader className={styles.preloader} width={68.7} height={68.7} /></div>  : null}
 
-  <section className={styles.main_page}>
+{token
+?
+<section className={styles.main_page}>
 
-      {status === 'error' || statusPageBook ===   'error' ||  statusCategories === 'error' ? <Alert/> : ''}
-      <Header />
-      <section className={styles.content}>
-          <div
-          onClick={e => e.stopPropagation() } role='presentation'
-          className={ menuIsOpen ? styles.burger_menu_active :styles.burger_menu}>
-          <Sections dataId1='burger-showcase' dataId2='burger-books' dataIdCategory='burger' isDesktop={false}/>
-          </div>
+{status === 'error' || statusPageBook ===   'error' ||  statusCategories === 'error' ? <Alert/> : ''}
+<Header />
+<section className={styles.content}>
+    <div
+    onClick={e => e.stopPropagation() } role='presentation'
+    className={ menuIsOpen ? styles.burger_menu_active :styles.burger_menu}>
+    <Sections dataId1='burger-showcase' dataId2='burger-books' dataIdCategory='burger' isDesktop={false}/>
+    </div>
 
 
-      <Outlet/>
-      </section>
+<Outlet/>
+</section>
 
-      <Footer/>
-  </section>
+<Footer/>
+</section>
+
+ :
+
+<Navigate to='/auth' />
+}
+
+
+
   </React.Fragment>
   )
     }
